@@ -1,0 +1,18 @@
+{
+	"name": "musicbase-sofify-backend",
+	"version": "1.0.0",
+	"description": "",
+	"main": "app.js",
+	"type": "module",
+	"scripts": {
+		"start": "node --watch app.js"
+	},
+	"keywords": [],
+	"author": "",
+	"license": "ISC",
+	"dependencies": {
+		"cors": "^2.8.5",
+		"express": "^4.18.2",
+		"mysql2": "^3.6.1"
+	}
+}
