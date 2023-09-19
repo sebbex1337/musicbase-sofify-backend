@@ -84,6 +84,7 @@ albumsRouter.get("/:id", (req, res) => {
 	});
 });
 
+/* Get all tracks from specific album */
 albumsRouter.get("/:id/tracks", (req, res) => {
 	const id = req.params.id;
 	const query = /* sql */ `

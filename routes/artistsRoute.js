@@ -50,4 +50,27 @@ artistsRouter.get("/:id", (request, response) => {
 	});
 });
 
+/* Get all albums from specific artist */
+artistsRouter.get("/:id/albums", (req, res) => {
+	const id = req.params.id;
+	const queryString = /* sql */ `
+	 SELECT DISTINCT albums.*,
+                        artists.name AS artistName,
+                        artists.id AS artistId
+        FROM albums
+        JOIN tracks_albums ON albums.id = tracks_albums.albumID
+        JOIN tracks ON tracks_albums.trackID = tracks.id
+        JOIN artists_tracks ON tracks.id = artists_tracks.trackID
+        JOIN artists ON artists_tracks.artistID = artists.id
+        WHERE artists_tracks.artistID = ?;
+	`;
+	connection.query(queryString, [id], (error, results) => {
+		if (error) {
+			console.log(error);
+		} else {
+			res.json(results);
+		}
+	});
+});
+
 export default artistsRouter;

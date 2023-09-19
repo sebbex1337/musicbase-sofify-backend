@@ -3,7 +3,7 @@ import connection from "../database.js";
 
 const tracksRouter = Router();
 
-// Default get route for tracks
+/* ============= GET ROUTES ============== */
 tracksRouter.get("/", (req, res) => {
 	const queryString = /* sql */ `
         SELECT tracks.*,
@@ -15,14 +15,14 @@ tracksRouter.get("/", (req, res) => {
     `;
 	connection.query(queryString, (error, result) => {
 		if (error) {
-			console.error(error);
+			console.log(error);
 		} else {
 			res.json(result);
 		}
 	});
 });
 
-// Get all artists from the database //
+// Search for specific track //
 tracksRouter.get("/search", (request, response) => {
 	const query = request.query.q;
 	const queryString = /*sql*/ `
@@ -30,14 +30,14 @@ tracksRouter.get("/search", (request, response) => {
 	const values = [`%${query}%`];
 	connection.query(queryString, values, (error, results) => {
 		if (error) {
-			console.error(error);
-			response.status(500).json({ message: "Error occured" });
+			console.log(error);
 		} else {
 			response.json(results);
 		}
 	});
 });
 
+// Get track by id //
 tracksRouter.get("/:id", (req, res) => {
 	const id = req.params.id;
 	const queryString = /* sql */ `
@@ -51,7 +51,56 @@ tracksRouter.get("/:id", (req, res) => {
     `;
 	connection.query(queryString, [id], (error, result) => {
 		if (error) {
-			console.error(error);
+			console.log(error);
+		} else {
+			res.json(result);
+		}
+	});
+});
+
+/* ============= POST ROUTES ============== */
+tracksRouter.post("/", (req, res) => {
+	const track = req.body;
+	const queryString = /* sql */ `
+		INSERT INTO tracks (name, duration) VALUES (?, ?);
+	`;
+	const values = [track.name, track.duration];
+	connection.query(queryString, values, (error, result) => {
+		if (error) {
+			console.log(error);
+		} else {
+			res.json(result);
+		}
+	});
+});
+
+/* ============= PUT ROUTES ============== */
+tracksRouter.put("/:id", (req, res) => {
+	const id = req.params.id;
+	const track = req.body;
+	const queryString = /* sql */ `
+		UPDATE tracks SET name = ?, duration = ? WHERE id = ?;
+	`;
+	const values = [track.name, track.duration, id];
+	connection.query(queryString, values, (error, result) => {
+		if (error) {
+			console.log(error);
+		} else {
+			res.json(result);
+		}
+	});
+});
+
+/* ============= DELETE ROUTES ============== */
+tracksRouter.delete("/:id", (req, res) => {
+	const id = req.params.id;
+	const queryString = /* sql */ `
+		DELETE FROM tracks WHERE id = ?;
+	`;
+	const values = [id];
+	connection.query(queryString, values, (error, result) => {
+		if (error) {
+			console.log(error);
 		} else {
 			res.json(result);
 		}
