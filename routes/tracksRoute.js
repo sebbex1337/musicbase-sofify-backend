@@ -4,7 +4,7 @@ import connection from "../database.js";
 const tracksRouter = Router();
 
 // Default get route for tracks
-tracksRouter.get("/", (req, res) => {
+tracksRouter.get("/", async (req, res) => {
 	const queryString = /* sql */ `
         SELECT tracks.*,
                     artists.name AS artistName,
@@ -15,33 +15,30 @@ tracksRouter.get("/", (req, res) => {
             INNER JOIN artists_tracks ON tracks.id = artists_tracks.trackID
             INNER JOIN artists ON artists_tracks.artistID = artists.id;
     `;
-	connection.query(queryString, (error, result) => {
-		if (error) {
-			console.error(error);
-		} else {
-			const tracks = prepareTrackData(result);
-			res.json(tracks);
-		}
-	});
+	const [results] = await connection.execute(queryString);
+	if (!results) {
+		res.status(404).json({ message: "No results found" });
+	} else {
+		const tracks = prepareTrackData(results);
+		res.json(tracks);
+	}
 });
 
 // Get all artists from the database //
-tracksRouter.get("/search", (request, response) => {
+tracksRouter.get("/search", async (request, response) => {
 	const query = request.query.q;
 	const queryString = /*sql*/ `
     SELECT * FROM tracks WHERE name LIKE ? ORDER BY name;`;
 	const values = [`%${query}%`];
-	connection.query(queryString, values, (error, results) => {
-		if (error) {
-			console.error(error);
-			response.status(500).json({ message: "Error occured" });
-		} else {
-			response.json(results);
-		}
-	});
+	const [results] = await connection.execute(queryString, values);
+	if (!results) {
+		response.status(404).json({ message: "No results found" });
+	} else {
+		response.json(results);
+	}
 });
 
-tracksRouter.get("/:id", (req, res) => {
+tracksRouter.get("/:id", async (req, res) => {
 	const id = req.params.id;
 	const queryString = /* sql */ `
         SELECT tracks.*,
@@ -54,29 +51,14 @@ tracksRouter.get("/:id", (req, res) => {
             INNER JOIN artists ON artists_tracks.artistID = artists.id
             WHERE tracks.id = ?;
     `;
-	connection.query(queryString, [id], (error, result) => {
-		if (error) {
-			console.error(error);
-		} else {
-			const tracks = prepareTrackData(result);
-			res.json(tracks);
-		}
-	});
+	const [results] = await connection.execute(queryString, [id]);
+	if (!results) {
+		res.status(404).json({ message: "No results found" });
+	} else {
+		const track = prepareTrackData(results);
+		res.json(track);
+	}
 });
-
-// tracksRouter.post("/", (req, res) => {
-// 	const track = req.body;
-// 	const queryString = /* sql */ `
-// 		INSERT INTO tracks (name, duration) VALUES (?, ?);`;
-// 	const values = [track.name, track.duration];
-// 	connection.query(queryString, values, (error, results) => {
-// 		if (error) {
-// 			console.log(error);
-// 		} else {
-// 			res.json(results);
-// 		}
-// 	});
-// });
 
 tracksRouter.post("/", async (req, res) => {
 	const track = req.body;
@@ -98,33 +80,31 @@ tracksRouter.post("/", async (req, res) => {
 	res.json({ message: "Track added", trackId: newTrackId });
 });
 
-tracksRouter.put("/:id", (req, res) => {
+tracksRouter.put("/:id", async (req, res) => {
 	const id = req.params.id;
 	const track = req.body;
 	const queryString = /* sql */ `
 		UPDATE tracks SET name = ?, duration = ?
 		WHERE id = ?;`;
 	const values = [track.name, track.duration, id];
-	connection.query(queryString, values, (error, results) => {
-		if (error) {
-			console.log(error);
-		} else {
-			res.json(results);
-		}
-	});
+	const [results] = await connection.execute(queryString, values);
+	if (!results) {
+		res.status(404).json({ message: "No results found" });
+	} else {
+		res.json(results);
+	}
 });
 
-tracksRouter.delete("/:id", (req, res) => {
+tracksRouter.delete("/:id", async (req, res) => {
 	const id = req.params.id;
 	const queryString = /* sql */ `
 		DELETE FROM tracks WHERE id = ?;`;
-	connection.query(queryString, [id], (error, results) => {
-		if (error) {
-			console.log(error);
-		} else {
-			res.json(results);
-		}
-	});
+	const [results] = await connection.query(queryString, [id]);
+	if (!results) {
+		res.status(404).json({ message: "No results found" });
+	} else {
+		res.json(results);
+	}
 });
 
 function prepareTrackData(results) {
