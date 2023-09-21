@@ -16,12 +16,12 @@ app.use("/artists", artistsRouter);
 
 //  PORT LISTNER - to see if there is connection
 app.listen(port, () => {
-  console.log(`Musicbase is running on http://localhost:${port}`);
+	console.log(`Musicbase is running on http://localhost:${port}`);
 });
 
 // Server is running
 app.get("/", (req, res) => {
-  res.send("Musicbase is up and running");
+	res.send("Musicbase is up and running");
 });
 
 // -------------------------------- //
@@ -62,20 +62,20 @@ app.get("/", (req, res) => {
 
 // READ ALL TRACKS FROM ALBUMS BY ID
 app.get("/tracks_albums/:id", (req, res) => {
-  const id = req.params.id;
-  const query = /* sql */ `
+	const id = req.params.id;
+	const query = /* sql */ `
 		SELECT * 
 		FROM albums 
 		INNER JOIN tracks_albums ON albums.id = tracks_albums.albumID 
 		INNER JOIN tracks ON tracks_albums.trackID = tracks.id 
 		WHERE albums.id=?; `;
-  const values = [id];
+	const values = [id];
 
-  connection.query(query, values, (err, results, fields) => {
-    if (err) {
-      console.log(err);
-    } else {
-      res.json(results);
-    }
-  });
+	connection.query(query, values, (err, results, fields) => {
+		if (err) {
+			console.log(err);
+		} else {
+			res.json(results);
+		}
+	});
 });
