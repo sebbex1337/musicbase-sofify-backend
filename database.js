@@ -1,7 +1,7 @@
-import mysql from "mysql2";
+import mysql from "mysql2/promise";
 import "dotenv/config";
 
-const connection = mysql.createConnection({
+const connection = await mysql.createConnection({
 	host: process.env.MYSQL_HOST,
 	port: process.env.MYSQL_PORT,
 	user: process.env.MYSQL_USER,

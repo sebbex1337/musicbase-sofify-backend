@@ -8,7 +8,7 @@ artistsRouter.get("/", (request, response) => {
         SELECT * FROM artists ORDER BY name ASC;`;
 	connection.query(queryString, (error, results) => {
 		if (error) {
-			console.error(error);
+			console.log(error);
 			response.status(500).json({ message: "Error occured" });
 		} else {
 			response.json(results);
@@ -17,7 +17,7 @@ artistsRouter.get("/", (request, response) => {
 });
 
 // Get searched artist from the database //
-artistsRouter.get("/search", (request, response) => {
+artistsRouter.get("/search", async (request, response) => {
 	console.log("searching for artist");
 	const query = request.query.q;
 	console.log(query);
@@ -25,9 +25,9 @@ artistsRouter.get("/search", (request, response) => {
 	const queryString = /*sql*/ `
     SELECT * FROM artists WHERE name LIKE ? ORDER BY name;`;
 	const values = [`%${query}%`];
-	connection.query(queryString, values, (error, results) => {
+	await connection.execute(queryString, values, (error, results) => {
 		if (error) {
-			console.error(error);
+			console.log(error);
 			response.status(500).json({ message: "Error occured" });
 		} else {
 			response.json(results);
@@ -36,13 +36,13 @@ artistsRouter.get("/search", (request, response) => {
 });
 
 // Get a single artist from the database //
-artistsRouter.get("/:id", (request, response) => {
+artistsRouter.get("/:id", async (request, response) => {
 	const id = request.params.id;
 	const queryString = /*sql*/ `
     SELECT * FROM artists WHERE id = ?;`;
-	connection.query(queryString, [id], (error, results) => {
+	await connection.execute(queryString, [id], (error, results) => {
 		if (error) {
-			console.error(error);
+			console.log(error);
 			response.status(500).json({ message: "Error occured" });
 		} else {
 			response.json(results);
@@ -50,4 +50,51 @@ artistsRouter.get("/:id", (request, response) => {
 	});
 });
 
+//add a new artist to the database //
+artistsRouter.post("/", async (request, response) => {
+	const artist = request.body;
+	const queryString = /*sql*/ `
+	INSERT INTO artists (name, image, website)	
+	VALUES (?, ?, ?);`;
+	const values = [artist.name, artist.image, artist.website];
+	await connection.execute(queryString, values, (error, results) => {
+		if (error) {
+			console.log(error);
+			response.status(500).json({ message: "Error occured" });
+		} else {
+			response.json(results);
+		}
+	});
+});
+// update an artist //
+artistsRouter.put("/:id", async (request, response) => {
+	const id = request.params.id;
+	const artist = request.body;
+	const queryString = /*sql*/ `
+	UPDATE artists SET name = ?, image = ?, website = ?
+	WHERE id = ?;`;
+	const values = [artist.name, artist.image, artist.website, id];
+	await connection.execute(queryString, values, (error, results) => {
+		if (error) {
+			console.log(error);
+			response.status(500).json({ message: "Error occured" });
+		} else {
+			response.json(results);
+		}
+	});
+});
+// delete an artist //
+artistsRouter.delete("/:id", async (request, response) => {
+	const id = request.params.id;
+	const queryString = /*sql*/ `
+	DELETE FROM artists WHERE id = ?;`;
+	await connection.execute(queryString, [id], (error, results) => {
+		if (error) {
+			console.log(error);
+			response.status(500).json({ message: "Error occured" });
+		} else {
+			response.json(results);
+		}
+	});
+});
 export default artistsRouter;
