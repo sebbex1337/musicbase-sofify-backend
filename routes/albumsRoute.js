@@ -150,6 +150,131 @@ albumsRouter.delete("/:id", async (req, res) => {
 	}
 });
 
+/* ========= Create complete album with artists and tracks ========== */
+albumsRouter.post("/collection", async (req, res) => {
+	const album = req.body;
+	const query = /* sql */ `
+	INSERT INTO albums(name, releaseDate, image) VALUES(?,?,?);
+	`;
+	const values = [album.name, album.releaseDate, album.image];
+	const [results] = await connection.execute(query, values);
+	const newAlbumId = results.insertId;
+
+	let artistId = album.artistId;
+	console.log("before artistId", artistId);
+	let artistIdExists = false;
+	if (artistId) {
+		artistIdExists = await checkArtist(album.artistId);
+	}
+	console.log("test", artistIdExists);
+	if (!artistIdExists) {
+		const artistsQuery = /* sql */ `
+		INSERT INTO artists(name, image, website) VALUES(?,?,?);
+		`;
+		const artistsValues = [album.artistName, album.artistImage, album.artistWebsite];
+		const [artistsResults] = await connection.execute(artistsQuery, artistsValues);
+		artistId = artistsResults.insertId;
+	}
+	console.log("After artistId", artistId);
+
+	const artistsAlbumsQuery = /* sql */ `
+	INSERT INTO artists_albums(artistID, albumID) VALUES(?,?);
+	`;
+	const artistsAlbumsValues = [artistId, newAlbumId];
+	const [artistsAlbumsResults] = await connection.execute(artistsAlbumsQuery, artistsAlbumsValues);
+
+	let trackId = await checkTrack(album.trackName);
+	console.log("traackId before", trackId);
+	if (!trackId) {
+		const tracksQuery = /* sql */ `
+		INSERT INTO tracks(name, duration) VALUES(?,?);
+		`;
+		const tracksValues = [album.trackName, album.trackDuration];
+		const [tracksResults] = await connection.execute(tracksQuery, tracksValues);
+		trackId = tracksResults.insertId;
+	}
+	console.log("trackId after", trackId);
+
+	const tracksAlbumsQuery = /* sql */ `
+	INSERT INTO tracks_albums(trackID, albumID) VALUES(?,?);
+	`;
+	const tracksAlbumsValues = [trackId, newAlbumId];
+	const [tracksAlbumsResults] = await connection.execute(tracksAlbumsQuery, tracksAlbumsValues);
+
+	const artistsTracksQuery = /* sql */ `
+	INSERT INTO artists_tracks(artistID, trackID) VALUES(?,?);
+	`;
+	const artistsTracksValues = [artistId, trackId];
+	const [artistsTracksResults] = await connection.execute(artistsTracksQuery, artistsTracksValues);
+
+	res.json({ message: "Album added", albumId: newAlbumId });
+});
+
+async function checkArtist(artistId) {
+	const [allArtists] = await connection.execute(/* sql */ `SELECT * FROM artists WHERE artists.id = ${artistId};`);
+	console.log(allArtists.length);
+	if (allArtists.length === 0) {
+		return false;
+	}
+	return true;
+}
+
+async function checkTrack(trackName) {
+	const values = [trackName];
+	const [allTracks] = await connection.execute(/* sql */ `SELECT * FROM tracks WHERE tracks.name = ?;`, values);
+	console.log(trackName);
+	console.log("ALltracks", allTracks);
+	if (allTracks.length >= 1) {
+		return allTracks[0].id;
+	}
+}
+
+albumsRouter.get("/:id/collection", async (req, res) => {
+	const id = req.params.id;
+	const query = /* sql */ `
+	SELECT albums.*,
+				artists.name AS artistName,
+				artists.id AS artistId,
+				artists.image AS artistImage,
+				artists.website AS artistWebsite,
+				tracks.id AS trackId,
+				tracks.name AS trackName,
+				tracks.duration AS trackDuration
+		FROM albums
+		INNER JOIN artists_albums ON albums.id = artists_albums.albumID
+		INNER JOIN artists ON artists_albums.artistID = artists.id
+		INNER JOIN tracks_albums ON albums.id = tracks_albums.albumID
+		INNER JOIN tracks ON tracks_albums.trackID = tracks.id
+		WHERE albums.id = ?;`;
+
+	const [results] = await connection.execute(query, [id]);
+	if (!results) {
+		console.log(error);
+	} else {
+		if (results[0]) {
+			const album = results[0];
+			const albumTracks = {
+				id: album.id,
+				name: album.name,
+				releaseDate: album.releaseDate,
+				artistName: album.artistName,
+				image: album.image,
+				tracks: results.map((track) => {
+					return {
+						id: track.trackId,
+						name: track.trackName,
+						duration: track.trackDuration,
+					};
+				}),
+			};
+
+			res.json(albumTracks);
+		} else {
+			res.json({ message: "Album not found" });
+		}
+	}
+});
+
 function prepareAlbumsData(results) {
 	const albumsWithArtists = {};
 
