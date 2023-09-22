@@ -6,20 +6,16 @@ const albumsRouter = Router();
 // READ ALBUMS (FETCH DATA)
 albumsRouter.get("/", async (req, res) => {
 	const query = /* sql */ `
-    SELECT DISTINCT albums.*,
-                artists.name AS artistName,
-                artists.id AS artistId
-            FROM albums
-            JOIN tracks_albums ON albums.id = tracks_albums.albumID
-            JOIN tracks ON tracks_albums.trackID = tracks.id
-            JOIN artists_tracks ON tracks.id = artists_tracks.trackID
-            JOIN artists ON artists_tracks.artistID = artists.id;`;
+    SELECT DISTINCT albums.*, artists.name AS artistName, artists.id AS artistId, artists.image AS artistsImage, artists.website AS artistsWebsite FROM albums
+JOIN artists_albums ON albums.id = artists_albums.albumID
+JOIN artists ON artists_albums.artistID = artists.id;`;
 
 	const [results] = await connection.execute(query);
 	if (!results) {
 		res.status(404).json({ message: "No results found" });
 	} else {
-		res.json(results);
+		const albums = prepareAlbumsData(results);
+		res.json(albums);
 	}
 });
 
@@ -33,7 +29,8 @@ albumsRouter.get("/search", async (request, response) => {
 	if (!results) {
 		response.status(404).json({ message: "No results found" });
 	} else {
-		response.json(results);
+		const albums = prepareAlbumsData(results);
+		response.json(albums);
 	}
 });
 
@@ -73,6 +70,7 @@ albumsRouter.get("/:id", async (req, res) => {
 					};
 				}),
 			};
+
 			res.json(albumTracks);
 		} else {
 			res.json({ message: "Album not found" });
@@ -151,5 +149,28 @@ albumsRouter.delete("/:id", async (req, res) => {
 		res.json(results);
 	}
 });
+
+function prepareAlbumsData(results) {
+	const albumsWithArtists = {};
+
+	for (const album of results) {
+		if (!albumsWithArtists[album.id]) {
+			albumsWithArtists[album.id] = {
+				id: album.id,
+				name: album.name,
+				releaseDate: album.releaseDate,
+				artists: [],
+			};
+		}
+		albumsWithArtists[album.id].artists.push({
+			name: album.artistName,
+			image: album.artistImage,
+			website: album.artistWebsite,
+			id: album.artistId,
+		});
+	}
+	const albumsArray = Object.values(albumsWithArtists);
+	return albumsArray;
+}
 
 export default albumsRouter;
