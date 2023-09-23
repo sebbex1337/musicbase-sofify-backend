@@ -7,7 +7,7 @@ import artistsRouter from "./routes/artistsRoute.js";
 import searchRouter from "./routes/searchRoute.js";
 
 const app = express();
-const port = 3333;
+const port = process.env.PORT || 3333;
 
 app.use(express.json()); // to parse JSON bodies
 app.use(cors());
