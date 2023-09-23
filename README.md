@@ -15,11 +15,11 @@ Features
 
 Before you begin, ensure you have met the following requirements:
 
-    Node.js installed on your local machine.
+-   Node.js installed on your local machine.
 
-    A MySQL database for storing your music data.
+-   A MySQL database for storing your music data.
 
-    Create a .env file in the project root directory and set the necessary environment variables (e.g., database credentials).
+-   Create a .env file in the project root directory and set the necessary environment variables (e.g., database credentials).
 
 ## Installation
 
@@ -34,11 +34,13 @@ Navigate to the project directory:
 ```bash
 cd musicbase-sofify-backend
 ```
+
 Install the project dependencies using npm:
 
 ```bash
 npm install
 ```
+
 ## Configuration
 
 Create a .env file in the project root directory with the following environment variables:
@@ -50,6 +52,7 @@ Create a .env file in the project root directory with the following environment 
     DB_DATABASE=your-database-name
     PORT=3333 # Optional: Set the port for your server (default is 3333).
 ```
+
 Update the values in the .env file with your database connection details.
 
 ## Usage
@@ -59,14 +62,15 @@ Start the server:
 ```bash
 npm start
 ```
+
 Your MusicBase Sofify backend server will be running at http://localhost:3333 (or the port you specified in your .env file).
 
 You can now make API requests to interact with your music database.
 
 ### API Endpoints
 
-- GET /songs: Get a list of all songs.
-- GET /songs/:id: Get details of a specific song by ID.
-- POST /songs: Add a new song to the database.
-- PUT /songs/:id: Update an existing song by ID.
-- DELETE /songs/:id: Delete a song from the database by ID.
+-   GET /songs: Get a list of all songs.
+-   GET /songs/:id: Get details of a specific song by ID.
+-   POST /songs: Add a new song to the database.
+-   PUT /songs/:id: Update an existing song by ID.
+-   DELETE /songs/:id: Delete a song from the database by ID.
