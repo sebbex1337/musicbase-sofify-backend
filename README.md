@@ -74,3 +74,11 @@ You can now make API requests to interact with your music database.
 -   POST /songs: Add a new song to the database.
 -   PUT /songs/:id: Update an existing song by ID.
 -   DELETE /songs/:id: Delete a song from the database by ID.
+
+### Links
+
+Link to deployed node app on Azure [Musicbase-sofify](https://musicbase-sofify.azurewebsites.net/)
+
+Link to frontend repository [Frontend repo](https://github.com/sebbex1337/musicbase-sofify-frontend)
+
+Link to frontend pages [Pages](https://sebbex1337.github.io/musicbase-sofify-frontend/)
