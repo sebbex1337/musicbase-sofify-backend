@@ -284,6 +284,7 @@ function prepareAlbumsData(results) {
 				id: album.id,
 				name: album.name,
 				releaseDate: album.releaseDate,
+				image: album.image,
 				artists: [],
 			};
 		}
