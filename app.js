@@ -1,11 +1,13 @@
 import express from "express";
 import cors from "cors";
+import connection from "./database.js";
 import albumsRouter from "./routes/albumsRoute.js";
 import tracksRouter from "./routes/tracksRoute.js";
 import artistsRouter from "./routes/artistsRoute.js";
+import searchRouter from "./routes/searchRoute.js";
 
 const app = express();
-const port = process.env.SERVER_PORT || 3333;
+const port = process.env.PORT || 3333;
 
 app.use(express.json()); // to parse JSON bodies
 app.use(cors());
@@ -13,6 +15,7 @@ app.use(cors());
 app.use("/albums", albumsRouter);
 app.use("/tracks", tracksRouter);
 app.use("/artists", artistsRouter);
+app.use("/search", searchRouter);
 
 //  PORT LISTNER - to see if there is connection
 app.listen(port, () => {
