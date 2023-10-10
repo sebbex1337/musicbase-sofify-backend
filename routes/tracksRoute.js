@@ -75,7 +75,6 @@ tracksRouter.post("/", async (req, res) => {
 	const artistsTracksValues = [track.artistId, newTrackId];
 
 	const [artistsTracksResults] = await connection.execute(artistsTracksQuery, artistsTracksValues);
-	console.log(artistsTracksResults);
 
 	res.json({ message: "Track added", trackId: newTrackId });
 });

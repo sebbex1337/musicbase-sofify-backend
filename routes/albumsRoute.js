@@ -161,12 +161,10 @@ albumsRouter.post("/collection", async (req, res) => {
 	const newAlbumId = results.insertId;
 
 	let artistId = album.artistId;
-	console.log("before artistId", artistId);
 	let artistIdExists = false;
 	if (artistId) {
 		artistIdExists = await checkArtist(album.artistId);
 	}
-	console.log("test", artistIdExists);
 	if (!artistIdExists) {
 		const artistsQuery = /* sql */ `
 		INSERT INTO artists(name, image, website) VALUES(?,?,?);
@@ -175,7 +173,6 @@ albumsRouter.post("/collection", async (req, res) => {
 		const [artistsResults] = await connection.execute(artistsQuery, artistsValues);
 		artistId = artistsResults.insertId;
 	}
-	console.log("After artistId", artistId);
 
 	const artistsAlbumsQuery = /* sql */ `
 	INSERT INTO artists_albums(artistID, albumID) VALUES(?,?);
@@ -184,7 +181,6 @@ albumsRouter.post("/collection", async (req, res) => {
 	const [artistsAlbumsResults] = await connection.execute(artistsAlbumsQuery, artistsAlbumsValues);
 
 	let trackId = await checkTrack(album.trackName);
-	console.log("traackId before", trackId);
 	if (!trackId) {
 		const tracksQuery = /* sql */ `
 		INSERT INTO tracks(name, duration) VALUES(?,?);
@@ -193,7 +189,6 @@ albumsRouter.post("/collection", async (req, res) => {
 		const [tracksResults] = await connection.execute(tracksQuery, tracksValues);
 		trackId = tracksResults.insertId;
 	}
-	console.log("trackId after", trackId);
 
 	const tracksAlbumsQuery = /* sql */ `
 	INSERT INTO tracks_albums(trackID, albumID) VALUES(?,?);
@@ -212,7 +207,6 @@ albumsRouter.post("/collection", async (req, res) => {
 
 async function checkArtist(artistId) {
 	const [allArtists] = await connection.execute(/* sql */ `SELECT * FROM artists WHERE artists.id = ${artistId};`);
-	console.log(allArtists.length);
 	if (allArtists.length === 0) {
 		return false;
 	}
@@ -222,8 +216,6 @@ async function checkArtist(artistId) {
 async function checkTrack(trackName) {
 	const values = [trackName];
 	const [allTracks] = await connection.execute(/* sql */ `SELECT * FROM tracks WHERE tracks.name = ?;`, values);
-	console.log(trackName);
-	console.log("ALltracks", allTracks);
 	if (allTracks.length >= 1) {
 		return allTracks[0].id;
 	}
