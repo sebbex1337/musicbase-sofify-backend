@@ -59,7 +59,7 @@ artistsRouter.post("/", async (request, response) => {
 });
 // update an artist //
 artistsRouter.put("/:id", async (request, response) => {
-    const id = request.params.id;
+    const id = Number(request.params.id);
     const artist = request.body;
     const queryString = /*sql*/ `
 	UPDATE artists SET name = ?, image = ?, website = ?
@@ -75,9 +75,15 @@ artistsRouter.put("/:id", async (request, response) => {
 // delete an artist //
 artistsRouter.delete("/:id", async (request, response) => {
     const id = request.params.id;
-    const queryString = /*sql*/ `
-	DELETE FROM artists WHERE id = ?;`;
-    const [results] = connection.execute(queryString, [id]);
+    const queryStringDelete = /*sql*/ `
+    DELETE FROM artists WHERE id = ?;`;
+    const queryArtistsTracks = /*sql*/ `
+    DELETE FROM artists_tracks WHERE artistID = ?;`;
+    const queryArtistsAlbums = /*sql*/ `
+    DELETE FROM artists_albums WHERE artistID = ?;`;
+    const [resultsArtistsTracks] = await connection.execute(queryArtistsTracks, [id]);
+    const [resultsArtistsAlbums] = await connection.execute(queryArtistsAlbums, [id]);
+    const [results] = await connection.execute(queryStringDelete, [id]);
     if (!results) {
         console.log(error);
         response.status(500).json({ message: "Error occured" });

@@ -78,9 +78,8 @@ CREATE TABLE `artists_albums` (
   `artistID` int NOT NULL,
   `albumID` int NOT NULL,
   PRIMARY KEY (`artistID`,`albumID`),
-  KEY `albumID` (`albumID`),
-  CONSTRAINT `artists_albums_ibfk_1` FOREIGN KEY (`artistID`) REFERENCES `artists` (`id`),
-  CONSTRAINT `artists_albums_ibfk_2` FOREIGN KEY (`albumID`) REFERENCES `albums` (`id`)
+  FOREIGN KEY (`artistID`) REFERENCES `artists` (`id`),
+  FOREIGN KEY (`albumID`) REFERENCES `albums` (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -105,9 +104,8 @@ CREATE TABLE `artists_tracks` (
   `artistID` int NOT NULL,
   `trackID` int NOT NULL,
   PRIMARY KEY (`artistID`,`trackID`),
-  KEY `trackID` (`trackID`),
-  CONSTRAINT `artists_tracks_ibfk_1` FOREIGN KEY (`artistID`) REFERENCES `artists` (`id`),
-  CONSTRAINT `artists_tracks_ibfk_2` FOREIGN KEY (`trackID`) REFERENCES `tracks` (`id`)
+  FOREIGN KEY (`artistID`) REFERENCES `artists` (`id`),
+  FOREIGN KEY (`trackID`) REFERENCES `tracks` (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -157,9 +155,8 @@ CREATE TABLE `tracks_albums` (
   `trackID` int NOT NULL,
   `albumID` int NOT NULL,
   PRIMARY KEY (`trackID`,`albumID`),
-  KEY `albumID` (`albumID`),
-  CONSTRAINT `tracks_albums_ibfk_1` FOREIGN KEY (`trackID`) REFERENCES `tracks` (`id`),
-  CONSTRAINT `tracks_albums_ibfk_2` FOREIGN KEY (`albumID`) REFERENCES `albums` (`id`)
+  FOREIGN KEY (`trackID`) REFERENCES `tracks` (`id`),
+  FOREIGN KEY (`albumID`) REFERENCES `albums` (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
