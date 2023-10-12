@@ -98,6 +98,12 @@ tracksRouter.delete("/:id", async (req, res) => {
     const id = req.params.id;
     const queryString = /* sql */ `
 		DELETE FROM tracks WHERE id = ?;`;
+    const queryArtistsTracks = /* sql */ `
+        DELETE FROM artists_tracks WHERE trackID = ?;`;
+    const queryTracksAlbums = /* sql */ `
+        DELETE FROM tracks_albums WHERE trackID = ?;`;
+    const [artistsTracksResults] = await connection.execute(queryArtistsTracks, [id]);
+    const [tracksAlbumsResults] = await connection.execute(queryTracksAlbums, [id]);
     const [results] = await connection.query(queryString, [id]);
     if (!results) {
         res.status(404).json({ message: "No results found" });
@@ -106,7 +112,7 @@ tracksRouter.delete("/:id", async (req, res) => {
     }
 });
 
-function prepareTrackData(results) {
+export function prepareTrackData(results) {
     const tracksWithArtists = {};
 
     for (const track of results) {
