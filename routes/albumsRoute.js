@@ -11,7 +11,6 @@ JOIN artists_albums ON albums.id = artists_albums.albumID
 JOIN artists ON artists_albums.artistID = artists.id;`;
 
     const [results] = await connection.execute(query);
-    console.log(results);
     if (!results) {
         res.status(404).json({ message: "No results found" });
     } else {
@@ -111,22 +110,28 @@ albumsRouter.get("/:id/tracks", async (req, res) => {
 // POST NEW ALBUM
 albumsRouter.post("/", async (req, res) => {
     const album = req.body;
+    console.log(album);
     const query = /* sql */ `INSERT INTO albums(name, releaseDate, image) values(?,?,?);`;
     const values = [album.name, album.releaseDate, album.image];
 
-    const [results] = await connection.execute(query, values);
-    if (!results) {
-        console.log(error);
-    } else {
-        res.json(results);
-    }
+    const [albumsResults] = await connection.execute(query, values);
+
+    const newAlbumId = albumsResults.insertId;
+    console.log(newAlbumId, "newAlbumId");
+
+    const artistsAlbumsQuery = /* sql */ `INSERT INTO artists_albums(artistID, albumID) VALUES(?,?);`;
+    const artistsAlbumsValues = [album.artistId, newAlbumId];
+
+    const [artistsAlbumsResults] = await connection.execute(artistsAlbumsQuery, artistsAlbumsValues);
+
+    res.json({ message: "Album added", albumId: newAlbumId });
 });
 
 // UPDATE ALBUMS BY ID
 albumsRouter.put("/:id", async (req, res) => {
     const id = req.params.id;
     const album = req.body;
-    const query = /* sql */ `UPADTE albums SET name=?, releaseDate=?, image=? WHERE id=?;`;
+    const query = /* sql */ `UPDATE albums SET name=?, releaseDate=?, image=? WHERE id=?;`;
     const values = [album.name, album.releaseDate, album.image, id];
 
     const [results] = await connection.execute(query, values);
